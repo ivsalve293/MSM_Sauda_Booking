@@ -72,10 +72,7 @@
     font-size: 15px;
     color: #b91c1c;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease,
-      background 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
   }
   .brand-logo:hover {
     transform: translateY(-3px) scale(1.03);
@@ -272,30 +269,30 @@
   .btn-chip,
   .btn-small,
   .btn-primary,
-  .btn-secondary{
+  .btn-secondary,
+  .btn-teal {
     position:relative;
     overflow:hidden;
     transition:transform .12s ease,box-shadow .2s ease,background .2s ease,opacity .2s ease;
+    cursor:pointer;
+    border:none;
+    border-radius:999px;
+    font-weight:700;
   }
 
   .btn-chip{
-    border-radius:999px;
     border:1px solid #fecaca;
     background:#fef2f2;
     padding:5px 10px;
     font-size:11px;
     color:#7f1d1d;
-    cursor:pointer;
   }
 
   .btn-small{
     font-size:12px;
     padding:6px 12px;
-    border:none;
-    border-radius:999px;
     background:#b91c1c;
     color:#f9fafb;
-    cursor:pointer;
     box-shadow:0 6px 14px rgba(185,28,28,.55);
   }
 
@@ -308,40 +305,35 @@
   }
 
   .btn-primary{
-    border:none;
-    border-radius:999px;
     font-size:13px;
     padding:8px 16px;
     background:linear-gradient(90deg,#ef4444,#b91c1c);
     color:#fef2f2;
-    font-weight:700;
-    cursor:pointer;
     box-shadow:0 8px 18px rgba(185,28,28,.55);
   }
   .btn-secondary{
-    border:none;
-    border-radius:999px;
     font-size:13px;
     padding:8px 16px;
     background:#111827;
     color:#fff;
-    font-weight:700;
-    cursor:pointer;
     box-shadow:0 8px 18px rgba(15,23,42,.6);
   }
+  
+  /* NEW BUTTON STYLE FOR SUMMARY */
+  .btn-teal {
+    font-size:13px;
+    padding:8px 16px;
+    background:linear-gradient(90deg,#0d9488, #0f766e);
+    color:#fff;
+    box-shadow:0 8px 18px rgba(13,148,136,.55);
+  }
 
-  .btn-chip:hover,
-  .btn-small:hover,
-  .btn-primary:hover,
-  .btn-secondary:hover{
+  .btn-chip:hover, .btn-small:hover, .btn-primary:hover, .btn-secondary:hover, .btn-teal:hover{
     transform:translateY(-1px) scale(1.03);
     box-shadow:0 10px 24px rgba(15,23,42,.35);
     opacity:0.96;
   }
-  .btn-chip:active,
-  .btn-small:active,
-  .btn-primary:active,
-  .btn-secondary:active{
+  .btn-chip:active, .btn-small:active, .btn-primary:active, .btn-secondary:active, .btn-teal:active{
     transform:translateY(1px) scale(0.97);
     box-shadow:0 4px 10px rgba(15,23,42,.35);
     opacity:0.9;
@@ -498,83 +490,178 @@
     }
   }
 
+  /* REPLACE YOUR EXISTING @media (max-width: 640px) BLOCK WITH THIS */
   @media (max-width: 640px){
     body{
-      padding:0;
+      padding: 0;
     }
     .outer-shell{
-      max-width:100%;
+      max-width: 100%;
     }
     .container{
-      border-radius:0;
-      box-shadow:none;
-      border:none;
+      border-radius: 0;
+      box-shadow: none;
+      border: none;
     }
     .brand-bar{
-      padding:12px 16px;
+      padding: 12px 16px;
     }
     .brand-title h1{
-      font-size:18px;
+      font-size: 18px;
     }
     .content{
-      padding:12px 10px 16px;
+      padding: 12px 10px 16px;
     }
     h2.section-title{
-      font-size:12px;
-      margin:12px 0 6px;
+      font-size: 12px;
+      margin: 12px 0 6px;
     }
     .section-shell{
-      padding:10px;
-      border-radius:10px;
-      margin-bottom:8px;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
     }
     .row{
-      flex-direction:column;
-      gap:8px;
-      margin-bottom:8px;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
     }
     .field{
-      min-width:100%;
-      flex:1 1 auto;
+      min-width: 100%;
+      flex: 1 1 auto;
     }
     .field label{
-      font-size:11px;
+      font-size: 11px;
     }
     .field input,
     .field select,
     .field textarea{
-      font-size:13px;
-      padding:9px 12px;
+      font-size: 13px;
+      padding: 9px 12px;
     }
     .item-card{
-      padding:8px 8px 10px;
-      border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,.08);
+      padding: 8px 8px 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
     }
     .item-card-header{
-      flex-direction:row;
-      align-items:flex-start;
-      gap:6px;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 6px;
     }
     .manualToggleBar{
-      flex-direction:column;
-      align-items:flex-start;
-      gap:4px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
     }
     .manualModeHint{
-      max-width:100%;
-    }
-    .item-card table{
-      display:block;
-      overflow-x:auto;
-      white-space:nowrap;
+      max-width: 100%;
     }
     .suggestion-box{
-      max-width:90vw;
-      min-width:60vw;
+      max-width: 90vw;
+      min-width: 60vw;
     }
     .btn-row{
-      justify-content:space-between;
+      justify-content: space-between;
+    }
+
+    /* --- NEW MOBILE TABLE STYLES (Vertical Cards) --- */
+    /* This makes the table look like the "Basic Details" form */
+    
+    .itemTable, .itemTable tbody, .itemTable tr, .itemTable td {
+      display: block;
+      width: 100%;
+    }
+    
+    .itemTable thead {
+      display: none; /* Hide the traditional table header */
+    }
+
+    .itemTable tr {
+      background: #ffffff;
+      border: 1px solid #fecaca; /* Matches your theme border */
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .itemTable td {
+      border: none;
+      padding: 0;
+      text-align: left;
+    }
+    
+    /* Add labels dynamically above inputs so it looks like a form field */
+    .itemTable td::before {
+      display: block;
+      font-size: 11px; /* Matches your Basic Details label size */
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+      content: attr(data-label); /* Fallback */
+    }
+
+    /* Column Specific Styling to create a grid inside the card */
+
+    /* Index (#) - Hidden or Small */
+    .itemTable td:nth-child(1) {
+      width: 100%;
+      font-size: 11px;
+      color: #b91c1c;
+      border-bottom: 1px dashed #fee2e2;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      font-weight: 700;
+    }
+    .itemTable td:nth-child(1)::before { content: "Entry #"; display: inline; color: #6b7280; font-weight: normal; margin-right:4px; }
+
+    /* Size - Full Width */
+    .itemTable td:nth-child(2) { width: 100%; }
+    .itemTable td:nth-child(2)::before { content: "Size"; }
+
+    /* Weight/Per - 50% Width */
+    .itemTable td:nth-child(3) { width: calc(50% - 5px); }
+    .itemTable td:nth-child(3)::before { content: "Per (Wt/Rate)"; }
+
+    /* MT (if visible) - Full Width */
+    .itemTable td:nth-child(4) { width: 100%; }
+    .itemTable td.mtCol::before { content: "MT"; }
+
+    /* Nos - 50% Width (sits next to Weight) */
+    .itemTable td:nth-child(5) { width: calc(50% - 5px); }
+    .itemTable td:nth-child(5)::before { content: "Nos / Qty"; }
+
+    /* Total - Full Width at bottom */
+    .itemTable td:nth-child(6) { width: 100%; margin-top: 4px; }
+    .itemTable td:nth-child(6)::before { content: "Row Total"; color: #b91c1c; }
+    
+    /* Input Styling to match Basic Details */
+    .itemTable input {
+      width: 100%;
+      background: #fef2f2; /* Light pink bg from Basic Details */
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+    .itemTable input:focus {
+      background: #ffffff;
+      border-color: #ef4444;
+      outline: none;
+    }
+
+    /* Footer buttons */
+    .sizes-footer {
+      flex-direction: row;
+    }
+    .sizes-footer button {
+      flex: 1;
+      justify-content: center;
+      padding: 10px;
     }
   }
 </style>
@@ -638,7 +725,8 @@
 
       <div class="btn-row">
         <button type="button" class="btn-secondary" onclick="resetForm()">↺ Reset</button>
-        <button type="button" class="btn-primary" onclick="shareOnWhatsApp()">🟢 Share on WhatsApp</button>
+        <button type="button" class="btn-teal" onclick="shareOnWhatsApp(false)">⚡ Share Qty Only</button>
+        <button type="button" class="btn-primary" onclick="shareOnWhatsApp(true)">🟢 Share Details</button>
       </div>
     </div>
   </div>
@@ -665,8 +753,6 @@
 
   const PIPE_SIZES=[{"label":"0.75\" 19x19(1.2)","weight":4},{"label":"0.75\" 19x19(1.6)","weight":5},{"label":"0.75\" 19x19(2.0)","weight":6},{"label":"1\" 25x25(1.2)","weight":6},{"label":"1\" 25x25(1.6)","weight":7},{"label":"1\" 25x25(2.0)","weight":9},{"label":"1\" 25x25(2.5)","weight":11.5},{"label":"1.25\" 32x32(1.2)","weight":7},{"label":"1.25\" 32x32(1.6)","weight":9},{"label":"1.25\" 32x32(2.0)","weight":11},{"label":"1.25\" 32x32(2.5)","weight":15.5},{"label":"1.25\" 32x32(2.9)","weight":17.5},{"label":"1.5\" 38x38(1.2)","weight":8.5},{"label":"1.5\" 38x38(1.6)","weight":11},{"label":"1.5\" 38x38(2.0)","weight":13},{"label":"1.5\" 38x38(2.5)","weight":17},{"label":"1.5\" 38x38(2.9)","weight":19},{"label":"47x47(1.6)","weight":14},{"label":"2\" 50x50(1.2)","weight":11},{"label":"2\" 50x50(1.6)","weight":15},{"label":"2\" 50x50(2.0)","weight":18},{"label":"2\" 50x50(2.5)","weight":23},{"label":"2\" 50x50(2.9)","weight":26},{"label":"2.5\" 60x60(1.6)","weight":17},{"label":"2.5\" 60x60(2.0)","weight":22},{"label":"2.5\" 60x60(2.5)","weight":28},{"label":"3\" 72x72(1.6)","weight":21},{"label":"3\" 72x72(2.0)","weight":27},{"label":"3\" 72x72(2.5)","weight":33},{"label":"3\" 72x72(2.9)","weight":39},{"label":"1.5\" x 0.75\" 40x20(1.2)","weight":7},{"label":"1.5\" x 0.75\" 40x20(1.6)","weight":9},{"label":"1.5\" x 0.75\" 40x20(2.0)","weight":11},{"label":"1.5\" x 0.75\" 40x20(2.5)","weight":15},{"label":"2\" x 1\" 50x25(1.2)","weight":8.5},{"label":"2\" x 1\" 50x25(1.6)","weight":11},{"label":"2\" x 1\" 50x25(2.0)","weight":13},{"label":"2\" x 1\" 50x25(2.5)","weight":18},{"label":"2\" x 1\" 50x25(2.9)","weight":21},{"label":"60x40(1.2)","weight":10},{"label":"60x40(1.6)","weight":14},{"label":"60x40(2.0)","weight":17},{"label":"60x40(2.5)","weight":23},{"label":"60x40(2.9)","weight":27},{"label":"75x25(1.2)","weight":10},{"label":"75x25(1.6)","weight":14},{"label":"75x25(2.0)","weight":17},{"label":"75x25(2.5)","weight":22},{"label":"75x25(2.9)","weight":25},{"label":"80x40(1.6)","weight":17},{"label":"80x40(2.0)","weight":22},{"label":"80x40(2.5)","weight":28},{"label":"80x40(2.9)","weight":31},{"label":"96x48(1.6)","weight":21},{"label":"96x48(2.0)","weight":27},{"label":"96x48(2.5)","weight":33},{"label":"96x48(2.9)","weight":39},{"label":"0.75\" 25OD(1.2)","weight":4},{"label":"0.75\" 25OD(1.6)","weight":5},{"label":"0.75\" 25OD(2.0)","weight":6},{"label":"1\" 33.4OD(1.2)","weight":6},{"label":"1\" 33.4OD(1.6)","weight":7},{"label":"1\" 33.4OD(2.0)","weight":9},{"label":"1\" 33.4OD(2.5)","weight":11.5},{"label":"1.25\" 41OD(1.2)","weight":7},{"label":"1.25\" 41OD(1.6)","weight":9},{"label":"1.25\" 41OD(2.0)","weight":11},{"label":"1.25\" 41OD(2.5)","weight":15.5},{"label":"1.25\" 41OD(2.9)","weight":17.5},{"label":"1.5\" 48.3OD(1.2)","weight":8.5},{"label":"1.5\" 48.3OD(1.6)","weight":11},{"label":"1.5\" 48.3OD(2.0)","weight":13},{"label":"1.5\" 48.3OD(2.5)","weight":17},{"label":"1.5\" 48.3OD(2.9)","weight":20},{"label":"2\" 60.3OD(1.2)","weight":10},{"label":"2\" 60.3OD(1.6)","weight":14},{"label":"2\" 60.3OD(2.0)","weight":17},{"label":"2\" 60.3OD(2.5)","weight":22},{"label":"2\" 60.3OD(2.9)","weight":24},{"label":"2.5\" 76.2OD(1.6)","weight":17},{"label":"2.5\" 76.2OD(2.0)","weight":22},{"label":"2.5\" 76.2OD(2.5)","weight":28},{"label":"3\" 88OD(1.6)","weight":21},{"label":"3\" 88OD(2.0)","weight":27},{"label":"3\" 88OD(2.5)","weight":33},{"label":"3\" 88OD(2.9)","weight":39}];
   const ANGLE_SIZES=[{"label":"25x3","weight":6.2},{"label":"25x5","weight":10.5},{"label":"32x3","weight":8},{"label":"35x3","weight":10.6},{"label":"35x4","weight":12},{"label":"35x5","weight":14.5},{"label":"40x4","weight":14},{"label":"40x5","weight":18},{"label":"50x4","weight":17.5},{"label":"50x5","weight":21.5},{"label":"50x6","weight":26.6},{"label":"65x5","weight":28.5},{"label":"65x6","weight":34.5}];
-
-  /* UPDATED CHANNEL SIZES WITH 95x45 (4" x 2") (SL) 36 */
   const CHANNEL_SIZES=[
     {"label":"75x40 (3\"X1.5\")","weight":36},
     {"label":"70x35 (3\"X1.5\")","weight":22},
@@ -1295,7 +1381,7 @@
   }
 
   // ---------- WHATSAPP MESSAGE BUILDER ----------
-  function buildWhatsAppMessage() {
+  function buildWhatsAppMessage(includeDetails) {
 
     const bookingDateRaw = document.getElementById('bookingDate').value || '';
     const bookingDate    = formatDisplayDate(bookingDateRaw);
@@ -1349,62 +1435,66 @@
       if (rateType) msg += `Rate Type: ${rateType}\n`;
       if (rate)     msg += `Rate: ${rate}\n`;
       if (basicRate) msg += `Basic Rate (Auto): ${basicRate}\n`;
-      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n\n`;
+      
+      // SHOW TOTAL
+      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`;
 
-      // DETAILS
-      const rows = [...card.querySelectorAll("tbody tr")];
-      const list = [];
+      // ONLY SHOW DETAILS IF REQUESTED
+      if (includeDetails) {
+        msg += `\n`; // Spacer
+        const rows = [...card.querySelectorAll("tbody tr")];
+        const list = [];
 
-      rows.forEach((row, i) => {
-        const sizeRaw = row.querySelector(".sizeInput").value.trim();
-        const perVal  = row.querySelector(".weightInput").value.trim();
-        const nosVal  = row.querySelector(".nosInput").value.trim();
-        const qtyRaw  = row.querySelector(".totalInput").value.trim();
+        rows.forEach((row, i) => {
+          const sizeRaw = row.querySelector(".sizeInput").value.trim();
+          const perVal  = row.querySelector(".weightInput").value.trim();
+          const nosVal  = row.querySelector(".nosInput").value.trim();
+          const qtyRaw  = row.querySelector(".totalInput").value.trim();
 
-        if (!sizeRaw && !qtyRaw) return;
+          if (!sizeRaw && !qtyRaw) return;
 
-        // Remove leading "Pipe ", "Angle " etc from size if present
-        let sizeShort = sizeRaw;
-        const prefix = item + " ";
-        if (sizeRaw.toLowerCase().startsWith(prefix.toLowerCase())) {
-          sizeShort = sizeRaw.slice(prefix.length);
-        }
-
-        let formula = "";
-        if (isPcs) {
-          // pieces
-          formula = `${perVal} x ${nosVal} = ${formatQty(qtyRaw, true)} Pcs`;
-        } else {
-          const nosLabel =
-            item === "Binding Wire" ? "Bundles" :
-            item === "Nails"        ? "Bags" :
-            "Nos";
-          formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
-        }
-
-        list.push({
-          sr: i + 1,
-          size: sizeShort,
-          formula
-        });
-      });
-
-      if (list.length) {
-        msg += `*Details:*\n`;
-        list.forEach(r => {
-          // universal: add item name before size unless size already includes it
-          let sizeText = r.size;
-          const normItem = (item || '').toLowerCase().replace(/[.\s]/g, '');
-          const normSize = (r.size || '').toLowerCase().replace(/[.\s]/g, '');
-          if (normItem && !normSize.startsWith(normItem)) {
-            sizeText = `${item} ${r.size}`;
+          // Remove leading "Pipe ", "Angle " etc from size if present
+          let sizeShort = sizeRaw;
+          const prefix = item + " ";
+          if (sizeRaw.toLowerCase().startsWith(prefix.toLowerCase())) {
+            sizeShort = sizeRaw.slice(prefix.length);
           }
-          msg += `${r.sr}. ${sizeText} ${r.formula}\n`;
+
+          let formula = "";
+          if (isPcs) {
+            // pieces
+            formula = `${perVal} x ${nosVal} = ${formatQty(qtyRaw, true)} Pcs`;
+          } else {
+            const nosLabel =
+              item === "Binding Wire" ? "Bundles" :
+              item === "Nails"        ? "Bags" :
+              "Nos";
+            formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
+          }
+
+          list.push({
+            sr: i + 1,
+            size: sizeShort,
+            formula
+          });
         });
-        msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`;
+
+        if (list.length) {
+          msg += `*Details:*\n`;
+          list.forEach(r => {
+            // universal: add item name before size unless size already includes it
+            let sizeText = r.size;
+            const normItem = (item || '').toLowerCase().replace(/[.\s]/g, '');
+            const normSize = (r.size || '').toLowerCase().replace(/[.\s]/g, '');
+            if (normItem && !normSize.startsWith(normItem)) {
+              sizeText = `${item} ${r.size}`;
+            }
+            msg += `${r.sr}. ${sizeText} ${r.formula}\n`;
+          });
+        }
       }
 
-      msg += `${SEP}\n`;
+      msg += `\n${SEP}\n`;
     });
 
     if (remarks.trim()) {
@@ -1416,7 +1506,7 @@
     return msg;
   }
 
-  function shareOnWhatsApp(){
+  function shareOnWhatsApp(includeDetails){
     const dRaw=bookingDateEl.value.trim();
     if(!dRaw){alert('Please select Booking Date.');return;}
     const chosen=new Date(dRaw); chosen.setHours(0,0,0,0);
@@ -1444,7 +1534,7 @@
       return;
     }
 
-    const message=buildWhatsAppMessage();
+    const message=buildWhatsAppMessage(includeDetails);
     const encoded=encodeURIComponent(message);
     const url=`https://wa.me/?text=${encoded}`;
     window.open(url,'_blank');
