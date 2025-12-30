@@ -1056,12 +1056,12 @@
       let basic;
 
       if(item === 'Binding Wire' || item === 'Nails'){
-        basic = (net / 1.18) - 160;
+        basic = (net / 1.18) - 255;
       } else {
         if(orderType === 'Bill'){
-          basic = (net / 1.18) - 160;
+          basic = (net / 1.18) - 255;
         } else { // NC
-          basic = (net / 1.18) - 160 + 3000;
+          basic = (net / 1.18) - 255 + 3000;
         }
       }
 
@@ -1535,4 +1535,5 @@
   window.resetForm = resetForm;
 </script>
 </body>
+
 </html>
