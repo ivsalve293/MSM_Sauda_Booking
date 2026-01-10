@@ -685,6 +685,8 @@
 <script>
   // --------------------------------------------------------
   //  CONFIGURATION
+  //  
+  //  IMPORTANT: This has been updated with your provided Google Sheets Web App URL.
   // --------------------------------------------------------
   const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzcSBboPXwuH-whwxXe8IdaaTqnTgIPBVo_z1aMJNZuzX2KQq12AL-RjH1znoq3MCex/exec"; 
   // --------------------------------------------------------
@@ -717,13 +719,15 @@
   // --- FETCH LIVE DATA & EXTRACT WEIGHT FROM LABEL ---
   async function fetchLiveItems() {
     try {
-        if(!SHEET_API_URL || SHEET_API_URL.includes("PASTE_YOUR")) {
-            console.warn("API URL not set. Using fallback logic if needed.");
-            return;
+        if(!SHEET_API_URL) { 
+            console.error("SHEET_API_URL is empty. Please update it in the CONFIGURATION section.");
+            loaderOverlay.innerHTML = `<p style='color:#dc2626; font-weight:700;'>Error: API URL Not Set.<br>Please ensure the Google Sheets Web App URL is correctly configured.</p>`;
+            setTimeout(() => { loaderOverlay.style.display = 'none'; }, 5000); // Hide after 5 seconds
+            return; // Exit the function gracefully
         }
 
         const response = await fetch(SHEET_API_URL); // GET request
-        if (!response.ok) throw new Error("Network response was not ok");
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
         const jsonResponse = await response.json();
         
         const rawItems = jsonResponse.items || [];
@@ -765,12 +769,12 @@
         // Update dropdowns in existing cards
         updateAllDropdowns();
 
-        loaderOverlay.style.display = 'none';
+        loaderOverlay.style.display = 'none'; // Hide loader on success
 
     } catch (error) {
         console.error("Error fetching live items:", error);
-        loaderOverlay.innerHTML = `<p style='color:white; font-weight:700;'>Error Loading Data.<br>Check internet.</p>`;
-        setTimeout(() => { loaderOverlay.style.display = 'none'; }, 3000);
+        loaderOverlay.innerHTML = `<p style='color:#dc2626; font-weight:700;'>Error Loading Data.<br>Check internet connection or API configuration.</p><p style='color:#dc2626; font-size:12px;'>Details: ${error.message || 'Unknown error'}</p>`;
+        setTimeout(() => { loaderOverlay.style.display = 'none'; }, 5000); // Hide after 5 seconds
     }
   }
 
@@ -848,7 +852,9 @@
         d.innerHTML = `<span class="left">${leftText}</span><span class="right">${rightText}</span>`;
         d.addEventListener('click',()=>{
           if(!itemTypeSelect.value){ itemTypeSelect.value = m.itemType; updateLabelsForCard(card); }
-          const prefix = (m.itemType==='Pipe'||m.itemType==='Angle'||m.itemType==='Channel'||m.itemType==='Flat') ? `${m.itemType} ` : '';
+          // --- MODIFICATION: Updated prefix logic to match corrected item name ---
+          const prefix = (m.itemType==='Pipe'||m.itemType==='Angle'||m.itemType==='Channel'||m.itemType==='Flat'||m.itemType==='Sqr Bar') ? `${m.itemType} ` : '';
+          // --- END MODIFICATION ---
           sizeInput.value = `${prefix}${m.label}`;
           // Auto-fill extracted weight
           if(m.weight > 0) weightInput.value = m.weight;
@@ -1057,7 +1063,7 @@
         </thead>
         <tbody></tbody>
         <tfoot>
-          <tr><td colspan="5" class="itemTotalLabel">Total Item Qty</td><td class="itemTotalCell">0.000</td></tr>
+          <tr><td colspan="5" class="itemTotalLabel">0.000</td></tr>
         </tfoot>
       </table>
       <div class="sizes-footer">
@@ -1072,7 +1078,7 @@
     const rateLabel=card.querySelector('.rateLabel');
     const rateInput=card.querySelector('.rateValue');
     const basicRateInput=card.querySelector('.basicRateValue');
-    const itemTotalLabel=card.querySelector('.itemTotalLabel');
+    const itemTotalLabel=card.querySelector('tfoot .itemTotalLabel'); // Cache this element
     const perHeader=card.querySelector('.perHeader');
     const manualToggle=card.querySelector('.manualQtyToggle');
     const manualInput=card.querySelector('.manualQtyValue');
@@ -1085,7 +1091,8 @@
         itemTypeSelect.innerHTML = '<option value="">Select Item</option>';
         ITEM_NAMES.forEach(name => {
             const opt = document.createElement('option');
-            opt.value = name; opt.textContent = name;
+            opt.value = name;
+            opt.textContent = name;
             itemTypeSelect.appendChild(opt);
         });
     }
@@ -1100,7 +1107,7 @@
       tbody.innerHTML = '';
       addSizeRow(card);
       card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
-      card.querySelector('.itemTotalCell').textContent = '0.000';
+      itemTotalLabel.textContent = '0.000'; // Corrected access
       basicRateInput.value = '';
       updateEffectiveTotalQty();
     }
@@ -1112,7 +1119,9 @@
       const rateType = rateTypeSelect.value;
       const net = num(rateInput.value);
 
-      if(!(item === 'Sq. Bar' || item === 'Round Bar' || item === 'Flat' || item === 'Binding Wire' || item === 'Nails')){
+      // --- MODIFICATION: Used corrected "Sqr Bar" string ---
+      if(!(item === 'Sqr Bar' || item === 'Round Bar' || item === 'Flat' || item === 'Binding Wire' || item === 'Nails')){
+      // --- END MODIFICATION ---
         basicRateInput.value = '';
         return;
       }
@@ -1146,25 +1155,42 @@
       const item=itemTypeSelect.value;
       const rt=rateTypeSelect.value;
       const rateWord=rt==='Basic'?'Basic Rate':rt==='Net'?'Netrate':'Rate';
-      rateLabel.textContent=item?`${item} ${rateWord}`:rateWord;
+      
+      // Customize Rate label based on item
+      // --- MODIFICATION: Used corrected "Sqr Bar" string ---
+      if (item === 'Sqr Bar') {
+        rateLabel.textContent = 'Sqr Bar Rate';
+      } else if (item === 'Round Bar') { 
+        rateLabel.textContent = 'Round Bar Rate';
+      } else {
+        rateLabel.textContent = item ? `${item} ${rateWord}` : rateWord;
+      }
+      // --- END MODIFICATION ---
 
       const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
-      const isBinding=(item==='Binding Wire');
-      const isMTOnly=(item==='Flat'||item==='Sq. Bar'||item==='Round Bar');
+      // --- MODIFICATION: Sq. Bar ADDED to isMTOnly to make it like Round Bar ---
+      const isMTOnly=(item==='Flat'||item==='Round Bar'||item==='Sqr Bar'); 
+      // --- END MODIFICATION ---
       const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
+      const isBinding=(item==='Binding Wire');
       const isNails=(item==='Nails');
 
       const headRow=card.querySelector('.itemTable thead tr');
       const mtCols=card.querySelectorAll('.mtCol');
-      const labelCell=card.querySelector('tfoot .itemTotalLabel');
-
+      
       const perHeaderCell = headRow.children[2];
       const nosHeader = headRow.children[4];
 
       perHeaderCell.style.display='';
       nosHeader.style.display='';
 
-      if(isPieces){
+      // Customize Item Total Qty label based on item
+      // --- MODIFICATION: Used corrected "Sqr Bar" string ---
+      if (item === 'Sqr Bar') {
+          itemTotalLabel.textContent = `Total Sqr Bar Qty (MT)`;
+      } else if (item === 'Round Bar') { 
+          itemTotalLabel.textContent = `Total Round Bar Qty (MT)`;
+      } else if(isPieces){
         itemTotalLabel.textContent=`Total ${item||'Item'} Qty (Pcs)`;
         perHeader.textContent='Pcs';
         headRow.children[4].textContent='Pcs/Box';
@@ -1200,8 +1226,11 @@
         manualInput.step='0.001';
         manualNote.textContent='';
       }
+      // --- END MODIFICATION ---
 
-      const showMT = isDirectMT || isMTOnly || isBinding || isNails;
+      // `showMT` logic: Only show MT column if `isMTOnly` (Round Bar, Flat), or `isDirectMT` (Pipe, Angle, Channel), or `isBinding`, or `isNails`.
+      // It should NOT show for Sqr Bar.
+      const showMT = isMTOnly || isDirectMT || isBinding || isNails;
       mtCols.forEach(c=>c.style.display=showMT?'table-cell':'none');
 
       card.querySelectorAll('tbody tr').forEach(row=>{
@@ -1211,7 +1240,8 @@
         const nosInput = row.querySelector('.nosInput');
         const weightInput = row.querySelector('.weightInput');
 
-        if(isMTOnly){
+        // --- MODIFICATION: Logic for Sqr Bar (now IS in isMTOnly) ---
+        if(isMTOnly){ // This applies to Round Bar, Sqr Bar and Flat (where per/nos are hidden)
           perHeaderCell.style.display='none';
           if(perTd) perTd.style.display='none';
           if(weightInput) weightInput.disabled=true;
@@ -1220,24 +1250,27 @@
           if(nosTd) nosTd.style.display='none';
           if(nosInput) nosInput.disabled=true;
 
-          if(mtTd) mtTd.style.display='table-cell';
-        }else{
+          if(mtTd) mtTd.style.display='table-cell'; // Show MT for these
+        } else { // This applies to other standard items (where per/nos are visible)
           if(perTd) perTd.style.display='table-cell';
           if(weightInput) weightInput.disabled=false;
 
-          nosHeader.style.display='';
           if(nosTd) nosTd.style.display='table-cell';
           if(nosInput) nosInput.disabled=false;
+          
+          if(mtTd) mtTd.style.display='none'; // Hide MT for these
         }
+        // --- END MODIFICATION ---
       });
 
-      if(isMTOnly){
-        labelCell.colSpan = 3;
-      }else if(showMT){
-        labelCell.colSpan = 5;
-      }else{
-        labelCell.colSpan = 4;
+      // --- MODIFICATION: Colspan adjustment for Sqr Bar ---
+      // If it's an MTOnly item, it has 3 visible columns: #, Size, MT, Total Item Qty. Footer spans 3.
+      if (isMTOnly) {
+          itemTotalLabel.colSpan = 3;
+      } else {
+          itemTotalLabel.colSpan = 4;
       }
+      // --- END MODIFICATION ---
 
       recalcItemTotals(card); 
       updateEffectiveTotalQty();
@@ -1250,8 +1283,8 @@
         manualInput.disabled=false;
         table.classList.add('table-disabled');
       }else{
-        manualInput.disabled=true;
-        manualInput.value='';
+        manualInput.disabled = true;
+        manualInput.value = '';
         table.classList.remove('table-disabled');
       }
       recalcItemTotals(card); updateEffectiveTotalQty();
@@ -1312,7 +1345,9 @@
   function recalcItemTotals(card){
     const item=card.querySelector('.itemTypeSelect').value;
     const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
-    const isMTOnly=(item==='Flat'||item==='Sq. Bar'||item==='Round Bar');
+    // --- MODIFICATION: Sqr Bar ADDED to isMTOnly ---
+    const isMTOnly=(item==='Flat'||item==='Round Bar'||item==='Sqr Bar');
+    // --- END MODIFICATION ---
     const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
     const isBinding=(item==='Binding Wire');
     const isNails=(item==='Nails');
@@ -1329,16 +1364,19 @@
         const mtInput=row.querySelector('.mtInput');
         const totalInput=row.querySelector('.totalInput');
 
-        if(isMTOnly && mtInput){
+        // --- MODIFICATION: Recalculation logic improved for isMTOnly items (Direct MT) ---
+        if(isMTOnly && mtInput){ // This now applies to Round Bar, Flat AND Sqr Bar
           const mtVal = num(mtInput.value);
           totalInput.value = mtVal ? mtVal.toFixed(3) : '';
           total += mtVal || 0;
-          return;
+          return; // Stop processing this row further as MT has been handled
         }
+        // --- END MODIFICATION ---
 
         let mtVal=0, nosVal=num(nosInput.value);
 
-        if((isDirectMT || isBinding || isNails) && mtInput){
+        // This section handles Direct MT items, Binding Wire, Nails, and Pieces
+        if((isDirectMT || isBinding || isNails) && mtInput){ 
           const last = row.dataset.lastEdited || 'nos';
           const mtTypedStr = mtInput.value;
           const mtTyped = num(mtTypedStr);
@@ -1361,7 +1399,7 @@
 
           totalInput.value = mtVal ? mtVal.toFixed(3) : '';
           total += mtVal || 0;
-        }else{
+        }else{ // This includes any "standard" item (Per * Nos) NOT in isMTOnly
           const raw = per * nosVal;
           const display = isPieces ? raw : raw/1000;
           totalInput.value = display ? (isPieces ? raw : display.toFixed(3)) : '';
@@ -1369,7 +1407,7 @@
         }
       });
     }
-    card.querySelector('.itemTotalCell').textContent=total.toFixed(3);
+    card.querySelector('tfoot .itemTotalLabel').textContent=total.toFixed(3);
   }
 
   function computeAllItemsTotal(){
@@ -1378,7 +1416,7 @@
       const item=card.querySelector('.itemTypeSelect').value;
       if(!item) return;
       if(item==='Bopp Tape'||item==='Cutting Wheels') return; // pieces not in MT total
-      sum += num(card.querySelector('.itemTotalCell').textContent);
+      sum += num(card.querySelector('tfoot .itemTotalLabel').textContent); 
     });
     return sum;
   }
@@ -1399,7 +1437,7 @@
   }
 
   addItemBtn.addEventListener('click',addItemCard);
-  addItemCard();
+  // addItemCard(); // Moved to initializeApp to ensure data is loaded first
 
   // ---------- DATE FORMATTER FOR WHATSAPP (DD/MM/YYYY) ----------
   function formatDisplayDate(isoStr) {
@@ -1446,7 +1484,7 @@
       const rateTypeRaw = card.querySelector(".rateTypeSelect").value || "";
       const rate        = card.querySelector(".rateValue").value || "";
       const basicRate   = card.querySelector(".basicRateValue").value || "";
-      const totalStr    = card.querySelector(".itemTotalCell").textContent || "0";
+      const totalStr    = card.querySelector('tfoot .itemTotalLabel').textContent || "0"; 
       const total       = num(totalStr);
 
       if (!item || total == 0) return;
@@ -1467,7 +1505,7 @@
       if (basicRate) msg += `Basic Rate (Auto): ${basicRate}\n`;
       
       // SHOW TOTAL
-      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`;
+      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`; 
 
       // ONLY SHOW DETAILS IF REQUESTED
       if (includeDetails) {
@@ -1499,7 +1537,23 @@
               item === "Binding Wire" ? "Bundles" :
               item === "Nails"        ? "Bags" :
               "Nos";
-            formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
+            
+            // --- MODIFICATION: Handle formula display for Direct MT items (Sqr Bar/Round Bar) ---
+            if (item === 'Sqr Bar' || item === 'Flat' || item === 'Round Bar') { 
+                // Since these are direct MT, Per and Nos might be empty. Just show total.
+                if(!nosVal || nosVal == 0) {
+                     formula = `= ${formatQty(qtyRaw, false)} MT`;
+                } else {
+                     formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
+                }
+            } else if (item === 'Pipe' || item === 'Angle' || item === 'Channel') {
+                // For Pipe, Angle, Channel which have a Kg/6 mtr per and Nos
+                formula = `${perVal}kg/6mtr x ${nosVal} Nos = ${formatQty(qtyRaw, false)} MT`;
+            } else {
+                // Default fallback for other MT items
+                formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
+            }
+            // --- END MODIFICATION ---
           }
 
           list.push({
@@ -1554,7 +1608,7 @@
     document.querySelectorAll('.item-card').forEach(card=>{
       const item=card.querySelector('.itemTypeSelect').value.trim();
       const orderType=card.querySelector('.orderTypeSelect').value.trim();
-      const total=num(card.querySelector('.itemTotalCell').textContent||0);
+      const total=num(card.querySelector('tfoot .itemTotalLabel').textContent||0); 
       if(item && total>0 && !orderType){
         missingOrderType=true;
       }
@@ -1591,7 +1645,7 @@
       if(el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
     });
     itemsContainer.innerHTML='';
-    addItemCard();
+    initializeApp(); // Call the async initializer to reload everything
     const today=new Date();
     bookingDateEl.max=isoDateOnly(today);
     bookingDateEl.value=isoDateOnly(today);
@@ -1602,9 +1656,13 @@
   window.shareOnWhatsApp = shareOnWhatsApp;
   window.resetForm = resetForm;
   
-  // Start fetching items immediately
-  fetchLiveItems();
+  // FIX: Ensure initialization happens after data is fetched
+  async function initializeApp() {
+    await fetchLiveItems(); // Wait for data to load
+    addItemCard(); // Add the first item card only after data is ready
+  }
 
+  initializeApp(); // Call the initialization function
 </script>
 </body>
 </html>
