@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sauda Booking - MT Transfer Fix</title>
+<title>Sauda Booking - Updated Weight Logic</title>
 <style>
   :root{
     --bg-main:#ffe4e6;
@@ -756,10 +756,19 @@
                 group.sizes.forEach(s => {
                     let weight = 0;
                     if (s.label) {
-                        const matches = s.label.trim().match(/[\s]+(\d+(\.\d+)?)$/);
-                        if (matches && matches[1]) {
-                            weight = parseFloat(matches[1]);
+                        // --- CHANGED LOGIC START ---
+                        // Extract weight from parentheses e.g., "35x5 (14.5)" -> 14.5
+                        const bracketMatch = s.label.trim().match(/\(\s*(\d+(\.\d+)?)\s*\)$/);
+                        if (bracketMatch && bracketMatch[1]) {
+                             weight = parseFloat(bracketMatch[1]);
+                        } else {
+                             // Fallback: extracts "0.75" from "Label 0.75" (old logic)
+                             const spaceMatch = s.label.trim().match(/[\s]+(\d+(\.\d+)?)$/);
+                             if (spaceMatch && spaceMatch[1]) {
+                                 weight = parseFloat(spaceMatch[1]);
+                             }
                         }
+                        // --- CHANGED LOGIC END ---
                     }
                     
                     CATEGORY_MAP[itemName].push({ label: s.label, weight: weight });
