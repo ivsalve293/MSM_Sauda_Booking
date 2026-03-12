@@ -210,7 +210,6 @@
     font-weight:600;
   }
 
-  /* NEW: Highlight the MT column slightly to indicate it is editable */
   td.mtCol input {
     background: #fff7f7;
     border-color: #fca5a5;
@@ -328,7 +327,7 @@
     color:#fff;
     box-shadow:0 8px 18px rgba(15,23,42,.6);
   }
-  
+
   .btn-teal {
     font-size:13px;
     padding:8px 16px;
@@ -481,10 +480,26 @@
     font-size:12px;
     color:#b91c1c;
   }
-  
-  /* LOADER */
-  #loaderOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-  .spinner { width: 50px; height: 50px; border: 4px solid rgba(220,38,38,0.2); border-left-color: #dc2626; border-radius: 50%; animation: spin 1s linear infinite; }
+
+  #loaderOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.95);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+  }
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(220,38,38,0.2);
+    border-left-color: #dc2626;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   @media (max-width: 900px){
@@ -504,7 +519,6 @@
     }
   }
 
-  /* --- MOBILE VIEW OPTIMIZATION --- */
   @media (max-width: 640px){
     body{ padding:0; }
     .outer-shell{ max-width:100%; }
@@ -524,17 +538,17 @@
     .manualModeHint{ maxWidth:100%; }
     .suggestion-box{ max-width:90vw; min-width:60vw; }
 
-    .btn-row{ 
+    .btn-row{
       display: flex;
-      justify-content:space-between; 
-      flex-wrap: wrap; 
+      justify-content:space-between;
+      flex-wrap: wrap;
       gap: 6px;
     }
     .btn-row button {
-      flex: 1 1 45%; 
-      padding: 10px 4px; 
-      font-size: 11px; 
-      white-space: nowrap; 
+      flex: 1 1 45%;
+      padding: 10px 4px;
+      font-size: 11px;
+      white-space: nowrap;
     }
 
     .itemTable { display: block; width: 100%; }
@@ -542,7 +556,7 @@
     .itemTable tbody, .itemTable tfoot { display: block; width: 100%; }
 
     .itemTable tbody tr {
-      display: flex !important; 
+      display: flex !important;
       flex-direction: column;
       background: #ffffff;
       border: 1px solid #fecaca;
@@ -551,7 +565,7 @@
       margin-bottom: 12px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    
+
     .itemTable tbody td {
       display: block;
       width: 100% !important;
@@ -571,7 +585,7 @@
 
     .itemTable tbody td:nth-child(1) { border-bottom: 1px dashed #fee2e2; margin-bottom: 8px; padding-bottom: 8px; font-weight: 700; color: #374151; }
     .itemTable tbody td:nth-child(1)::before { content: "#"; display: inline-block; margin-right: 6px; color: #6b7280; font-weight: normal; }
-    
+
     .itemTable tbody td:nth-child(2)::before { content: "Size"; }
     .itemTable tbody td:nth-child(3)::before { content: "Per (Kg / Qty)"; }
     .itemTable tbody td.mtCol::before { content: "MT (Input Optional)"; }
@@ -604,7 +618,7 @@
       align-items: center;
       margin-bottom: 8px;
     }
-    
+
     .itemTable tfoot td {
       display: block !important;
       width: auto !important;
@@ -614,7 +628,7 @@
       color: #fff;
       font-weight: 700;
     }
-    
+
     .itemTable tfoot td::before { content: none !important; }
     .sizes-footer { gap: 10px; }
     .sizes-footer button { flex: 1; padding: 12px; justify-content: center; }
@@ -693,141 +707,212 @@
 </div>
 
 <script>
-  // --------------------------------------------------------
-  //  CONFIGURATION
-  // --------------------------------------------------------
   const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzcSBboPXwuH-whwxXe8IdaaTqnTgIPBVo_z1aMJNZuzX2KQq12AL-RjH1znoq3MCex/exec";
-  // --------------------------------------------------------
 
-  const MAX_ITEMS=25;
-  const itemsContainer=document.getElementById('itemsContainer');
-  const totalQtyHeader=document.getElementById('totalQtyHeader');
-  const addItemBtn=document.getElementById('addItemBtn');
-  const bookingDateEl=document.getElementById('bookingDate');
-  const loaderOverlay=document.getElementById('loaderOverlay');
+  const MAX_ITEMS = 25;
+  const itemsContainer = document.getElementById('itemsContainer');
+  const totalQtyHeader = document.getElementById('totalQtyHeader');
+  const addItemBtn = document.getElementById('addItemBtn');
+  const bookingDateEl = document.getElementById('bookingDate');
+  const loaderOverlay = document.getElementById('loaderOverlay');
 
-  // DYNAMIC DATA VARIABLES
   let CATEGORY_MAP = {};
   let ALL_SIZES = [];
   let ITEM_NAMES = [];
 
-  function num(v){const n=parseFloat(v);return isNaN(n)?0:n;}
+  function num(v){
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
 
   function isoDateOnly(d){
-    const z=new Date(d); z.setHours(0,0,0,0);
+    const z = new Date(d);
+    z.setHours(0,0,0,0);
     return `${z.getFullYear()}-${String(z.getMonth()+1).padStart(2,'0')}-${String(z.getDate()).padStart(2,'0')}`;
   }
+
   (function initDateField(){
-    const today=new Date();
-    const todayStr=isoDateOnly(today);
-    bookingDateEl.max=todayStr;
-    bookingDateEl.value=todayStr;
+    const today = new Date();
+    const todayStr = isoDateOnly(today);
+    bookingDateEl.max = todayStr;
+    bookingDateEl.value = todayStr;
   })();
 
-  // --- FETCH LIVE DATA & EXTRACT WEIGHT FROM LABEL ---
+  function isActiveValue(v){
+    if (v === true || v === 1) return true;
+    const s = String(v || '').trim().toLowerCase();
+    return s === 'true' || s === '1' || s === 'yes' || s === 'y';
+  }
+
+  function extractWeightFromLabel(label){
+    const txt = String(label || '').trim();
+    if (!txt) return 0;
+
+    // Last numeric token is treated as weight
+    // Example: 0.75" 19x19(1.6) 5  =>  5
+    const m = txt.match(/(\d+(\.\d+)?)\s*$/);
+    if (m && m[1]) return parseFloat(m[1]);
+
+    return 0;
+  }
+
+  function extractWeightFromRow(row, sizeLabel){
+
+  // 1️⃣ First try to get weight from label
+  const labelWeight = extractWeightFromLabel(sizeLabel);
+  if (labelWeight > 0) return labelWeight;
+
+  // 2️⃣ Otherwise use API fields
+  const apiWeight =
+    num(row.weight) ||
+    num(row.unit_weight) ||
+    0;
+
+  return apiWeight;
+}
+
+  function normalizeApiRows(apiData){
+    const rows = Array.isArray(apiData)
+      ? apiData
+      : Array.isArray(apiData?.items)
+        ? apiData.items
+        : Array.isArray(apiData?.data)
+          ? apiData.data
+          : [];
+
+    const grouped = {};
+
+    rows.forEach(row => {
+      if (!row || typeof row !== 'object') return;
+
+      const itemName = String(row.item_name || row.item || row.name || '').trim();
+      const sizeLabel = String(row.size_label || row.size || row.label || '').trim();
+      const activePresent = Object.prototype.hasOwnProperty.call(row, 'active');
+      const active = activePresent ? isActiveValue(row.active) : true;
+
+      if (!itemName || !sizeLabel || !active) return;
+
+      if (!grouped[itemName]) grouped[itemName] = [];
+
+      const weight = extractWeightFromRow(row, sizeLabel);
+      grouped[itemName].push({ label: sizeLabel, weight: weight });
+    });
+
+    const finalMap = {};
+    Object.keys(grouped).forEach(itemName => {
+      const seen = new Set();
+      finalMap[itemName] = grouped[itemName].filter(entry => {
+        const key = `${entry.label}__${entry.weight}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    });
+
+    return finalMap;
+  }
+
   async function fetchLiveItems() {
     try {
-        if(!SHEET_API_URL) { 
-            console.error("SHEET_API_URL is empty. Please update it in the CONFIGURATION section.");
-            loaderOverlay.innerHTML = `<p style='color:#dc2626; font-weight:700;'>Error: API URL Not Set.<br>Please ensure the Google Sheets Web App URL is correctly configured.</p>`;
-            setTimeout(() => { loaderOverlay.style.display = 'none'; }, 5000); 
-            return; 
-        }
+      if (!SHEET_API_URL) {
+        throw new Error("SHEET_API_URL is empty.");
+      }
 
-        const response = await fetch(SHEET_API_URL); 
-        if (!response.ok) throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-        const jsonResponse = await response.json();
-        
-        const rawItems = jsonResponse.items || [];
-        
-        // Reset Data
-        CATEGORY_MAP = {};
-        ALL_SIZES = [];
-        ITEM_NAMES = [];
+      const response = await fetch(SHEET_API_URL + "?t=" + Date.now(), {
+        method: "GET",
+        cache: "no-store"
+      });
 
-        rawItems.forEach(group => {
-            const itemName = group.name;
-            if (!itemName) return;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+      }
 
-            ITEM_NAMES.push(itemName);
-            CATEGORY_MAP[itemName] = [];
+      const text = await response.text();
+      let apiData;
 
-            if (group.sizes && Array.isArray(group.sizes)) {
-                group.sizes.forEach(s => {
-                    let weight = 0;
-                    if (s.label) {
-                        // --- CHANGED LOGIC START ---
-                        // Extract weight from parentheses e.g., "35x5 (14.5)" -> 14.5
-                        const bracketMatch = s.label.trim().match(/\(\s*(\d+(\.\d+)?)\s*\)$/);
-                        if (bracketMatch && bracketMatch[1]) {
-                             weight = parseFloat(bracketMatch[1]);
-                        } else {
-                             // Fallback: extracts "0.75" from "Label 0.75" (old logic)
-                             const spaceMatch = s.label.trim().match(/[\s]+(\d+(\.\d+)?)$/);
-                             if (spaceMatch && spaceMatch[1]) {
-                                 weight = parseFloat(spaceMatch[1]);
-                             }
-                        }
-                        // --- CHANGED LOGIC END ---
-                    }
-                    
-                    CATEGORY_MAP[itemName].push({ label: s.label, weight: weight });
-                });
-            }
-        });
+      try {
+        apiData = JSON.parse(text);
+      } catch (err) {
+        console.error('RAW API RESPONSE:', text);
+        throw new Error("API did not return valid JSON.");
+      }
 
-        // Rebuild ALL_SIZES flat list
-        ALL_SIZES = Object.entries(CATEGORY_MAP).flatMap(([cat, arr]) =>
-            arr.map(o => ({ itemType: cat, label: o.label, weight: o.weight }))
-        );
+      CATEGORY_MAP = normalizeApiRows(apiData);
+      ITEM_NAMES = Object.keys(CATEGORY_MAP);
 
-        // Update dropdowns in existing cards
-        updateAllDropdowns();
+      ALL_SIZES = Object.entries(CATEGORY_MAP).flatMap(([cat, arr]) =>
+        arr.map(o => ({
+          itemType: cat,
+          label: o.label,
+          weight: o.weight
+        }))
+      );
 
-        loaderOverlay.style.display = 'none'; 
+      updateAllDropdowns();
+      loaderOverlay.style.display = 'none';
 
+      if (!ITEM_NAMES.length) {
+        console.warn("No items found from API.");
+      }
     } catch (error) {
-        console.error("Error fetching live items:", error);
-        loaderOverlay.innerHTML = `<p style='color:#dc2626; font-weight:700;'>Error Loading Data.<br>Check internet connection or API configuration.</p><p style='color:#dc2626; font-size:12px;'>Details: ${error.message || 'Unknown error'}</p>`;
-        setTimeout(() => { loaderOverlay.style.display = 'none'; }, 5000); 
+      console.error("Error fetching live items:", error);
+
+      CATEGORY_MAP = {};
+      ITEM_NAMES = [];
+      ALL_SIZES = [];
+      updateAllDropdowns();
+
+      loaderOverlay.innerHTML = `
+        <p style="margin-top:16px; font-weight:700; color:#dc2626; text-align:center;">
+          Error loading live data
+        </p>
+        <p style="font-size:12px; color:#991b1b; text-align:center; margin-top:8px;">
+          ${error.message}
+        </p>
+      `;
+
+      setTimeout(() => {
+        loaderOverlay.style.display = 'none';
+      }, 3000);
     }
   }
 
   function updateAllDropdowns() {
-      document.querySelectorAll('.itemTypeSelect').forEach(select => {
-          const currentVal = select.value;
-          select.innerHTML = '<option value="">Select Item</option>';
-          ITEM_NAMES.forEach(name => {
-              const opt = document.createElement('option');
-              opt.value = name;
-              opt.textContent = name;
-              select.appendChild(opt);
-          });
-          if(ITEM_NAMES.includes(currentVal)) {
-              select.value = currentVal;
-          }
+    document.querySelectorAll('.itemTypeSelect').forEach(select => {
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">Select Item</option>';
+
+      ITEM_NAMES.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
       });
+
+      if (currentVal && ITEM_NAMES.includes(currentVal)) {
+        select.value = currentVal;
+      }
+    });
   }
 
-  // --- SUGGESTION LOGIC ---
   function attachSuggestion(sizeInput, itemTypeSelect, weightInput, card){
-    const box=document.createElement('div');
-    box.className='suggestion-box';
+    const box = document.createElement('div');
+    box.className = 'suggestion-box';
     document.body.appendChild(box);
 
     function placeBox(){
-      if(box.style.display==='none') return;
-      const rect=sizeInput.getBoundingClientRect();
-      const vw=window.innerWidth;
-      const vh=window.innerHeight;
+      if(box.style.display === 'none') return;
+      const rect = sizeInput.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
       box.style.minWidth = rect.width + 'px';
 
       let left = rect.left;
-      let top  = rect.bottom + 4;
+      let top = rect.bottom + 4;
 
       box.style.left = left + 'px';
-      box.style.top  = top  + 'px';
+      box.style.top = top + 'px';
 
       const boxRect = box.getBoundingClientRect();
 
@@ -841,37 +926,57 @@
       }
 
       box.style.left = left + 'px';
-      box.style.top  = top  + 'px';
+      box.style.top = top + 'px';
     }
 
     function currentList(){
-      const sel=itemTypeSelect.value;
+      const sel = itemTypeSelect.value;
       if(sel){
-        return (CATEGORY_MAP[sel]||[]).map(o=>({itemType:sel,label:o.label,weight:o.weight}));
+        return (CATEGORY_MAP[sel] || []).map(o => ({itemType: sel, label: o.label, weight: o.weight}));
       }
       return ALL_SIZES;
     }
 
     function renderList(list, showItemTag){
-      if(!list.length){ box.style.display='none'; return; }
-      box.innerHTML='';
-      list.forEach(m=>{
-        const d=document.createElement('div'); d.className='suggestion-item';
+      if(!list.length){ box.style.display = 'none'; return; }
+      box.innerHTML = '';
+
+      list.forEach(m => {
+        const d = document.createElement('div');
+        d.className = 'suggestion-item';
         const leftText = showItemTag ? `[${m.itemType}] ${m.label}` : m.label;
         const rightText = (m.weight && m.weight > 0) ? m.weight : '';
         d.innerHTML = `<span class="left">${leftText}</span><span class="right">${rightText}</span>`;
-        d.addEventListener('click',()=>{
-          if(!itemTypeSelect.value){ itemTypeSelect.value = m.itemType; updateLabelsForCard(card); }
-          const prefix = (m.itemType==='Pipe'||m.itemType==='Angle'||m.itemType==='Channel'||m.itemType==='Flat'||m.itemType==='Sqr Bar') ? `${m.itemType} ` : '';
+
+        d.addEventListener('click', () => {
+          if(!itemTypeSelect.value){
+            itemTypeSelect.value = m.itemType;
+            updateLabelsForCard(card);
+          }
+
+          const prefix = (m.itemType === 'Pipe' || m.itemType === 'Angle' || m.itemType === 'Channel' || m.itemType === 'Flat' || m.itemType === 'Sqr Bar')
+            ? `${m.itemType} `
+            : '';
+
           sizeInput.value = `${prefix}${m.label}`;
-          if(m.weight > 0) weightInput.value = m.weight;
-          else weightInput.value = ''; 
-          
-          recalcItemTotals(card); updateEffectiveTotalQty();
-          box.style.display='none';
-          
+          weightInput.value = m.weight > 0 ? m.weight : '';
+
+          // For direct MT items, if user selected size from list then default Nos = 1
+          const row = sizeInput.closest('tr');
+          const nosInput = row ? row.querySelector('.nosInput') : null;
+          const mtInput = row ? row.querySelector('.mtInput') : null;
+
+          if (nosInput && !nosInput.value) nosInput.value = 1;
+          if (row) row.dataset.lastEdited = 'nos';
+          if (mtInput && !mtInput.value) mtInput.value = '';
+
+          recalcItemTotals(card);
+          updateEffectiveTotalQty();
+          box.style.display = 'none';
+
           if(!weightInput.value) weightInput.focus();
         });
+
         box.appendChild(d);
       });
 
@@ -879,7 +984,7 @@
       addRow.className = 'suggestion-item add-item-footer';
       addRow.innerHTML = `<span class="left">＋ Add Item</span>`;
       addRow.addEventListener('click', () => {
-        box.style.display='none';
+        box.style.display = 'none';
         const newCard = addItemCard();
         if(newCard){
           newCard.scrollIntoView({behavior:'smooth', block:'center'});
@@ -889,7 +994,7 @@
       });
       box.appendChild(addRow);
 
-      box.style.display='block';
+      box.style.display = 'block';
       placeBox();
     }
 
@@ -901,56 +1006,57 @@
         ...s,
         searchText: (showItemTag ? `[${s.itemType}] ${s.label}` : s.label).toLowerCase()
       }));
-      const matches = q ? searchPool.filter(s=>s.searchText.includes(q)) : searchPool;
+      const matches = q ? searchPool.filter(s => s.searchText.includes(q)) : searchPool;
       renderList(matches, showItemTag);
     }
 
     sizeInput.addEventListener('focus', filterAndShow);
     sizeInput.addEventListener('input', filterAndShow);
-    document.addEventListener('click',e=>{
-      if(!box.contains(e.target) && e.target!==sizeInput) box.style.display='none';
+
+    document.addEventListener('click', e => {
+      if(!box.contains(e.target) && e.target !== sizeInput) box.style.display = 'none';
     });
 
-    sizeInput.addEventListener('keydown',e=>{
-      if(box.style.display!=='block') return;
-      const items=[...box.querySelectorAll('.suggestion-item')];
+    sizeInput.addEventListener('keydown', e => {
+      if(box.style.display !== 'block') return;
+      const items = [...box.querySelectorAll('.suggestion-item')];
       if(!items.length) return;
-      let idx=items.findIndex(el=>el.classList.contains('active'));
-      if(e.key==='ArrowDown'){
+      let idx = items.findIndex(el => el.classList.contains('active'));
+
+      if(e.key === 'ArrowDown'){
         e.preventDefault();
-        items.forEach(el=>el.classList.remove('active'));
-        idx=Math.min(idx+1, items.length-1);
+        items.forEach(el => el.classList.remove('active'));
+        idx = Math.min(idx + 1, items.length - 1);
         items[idx].classList.add('active');
         items[idx].scrollIntoView({block:'nearest'});
-      }else if(e.key==='ArrowUp'){
+      }else if(e.key === 'ArrowUp'){
         e.preventDefault();
-        items.forEach(el=>el.classList.remove('active'));
-        idx=Math.max(idx-1, 0);
+        items.forEach(el => el.classList.remove('active'));
+        idx = Math.max(idx - 1, 0);
         items[idx].classList.add('active');
         items[idx].scrollIntoView({block:'nearest'});
-      }else if(e.key==='Enter'){
+      }else if(e.key === 'Enter'){
         e.preventDefault();
-        if(idx>=0){ items[idx].click(); }
+        if(idx >= 0){ items[idx].click(); }
       }
     });
 
-    window.addEventListener('scroll',()=>{ if(box.style.display==='block') placeBox(); }, true);
-    window.addEventListener('resize',()=>{ if(box.style.display==='block') placeBox(); });
+    window.addEventListener('scroll', () => { if(box.style.display === 'block') placeBox(); }, true);
+    window.addEventListener('resize', () => { if(box.style.display === 'block') placeBox(); });
 
-    itemTypeSelect.addEventListener('change', ()=>{
-      box.style.display='none';
+    itemTypeSelect.addEventListener('change', () => {
+      box.style.display = 'none';
       filterAndShow();
     });
   }
 
   function addSizeRow(card){
-    const tbody=card.querySelector('tbody');
-    const rowIndex=tbody.children.length+1;
+    const tbody = card.querySelector('tbody');
+    const rowIndex = tbody.children.length + 1;
 
-    const tr=document.createElement('tr');
+    const tr = document.createElement('tr');
     tr.dataset.lastEdited = 'nos';
-    // NOTE: Added placeholder to MT input to indicate editability
-    tr.innerHTML=`
+    tr.innerHTML = `
       <td>${rowIndex}</td>
       <td><input type="text" class="sizeInput" placeholder="Click or type to search"></td>
       <td><input type="number" class="weightInput" step="0.01" min="0"></td>
@@ -959,27 +1065,26 @@
       <td><input type="number" class="totalInput" readonly></td>`;
     tbody.appendChild(tr);
 
-    const itemTypeSelect=card.querySelector('.itemTypeSelect');
-    const sizeInput=tr.querySelector('.sizeInput');
-    const weightInput=tr.querySelector('.weightInput');
-    const nosInput=tr.querySelector('.nosInput');
-    const mtInput=tr.querySelector('.mtInput');
+    const itemTypeSelect = card.querySelector('.itemTypeSelect');
+    const sizeInput = tr.querySelector('.sizeInput');
+    const weightInput = tr.querySelector('.weightInput');
+    const nosInput = tr.querySelector('.nosInput');
+    const mtInput = tr.querySelector('.mtInput');
 
-    attachSuggestion(sizeInput,itemTypeSelect,weightInput,card);
+    attachSuggestion(sizeInput, itemTypeSelect, weightInput, card);
 
-    weightInput.addEventListener('input',()=>{
+    weightInput.addEventListener('input', () => {
       recalcItemTotals(card);
       updateEffectiveTotalQty();
     });
 
-    nosInput.addEventListener('input',()=>{
+    nosInput.addEventListener('input', () => {
       tr.dataset.lastEdited = 'nos';
       recalcItemTotals(card);
       updateEffectiveTotalQty();
     });
 
-    // LISTENER FOR THE NEW MT COLUMN WRITES
-    mtInput.addEventListener('input',()=>{
+    mtInput.addEventListener('input', () => {
       tr.dataset.lastEdited = 'mt';
       recalcItemTotals(card);
       updateEffectiveTotalQty();
@@ -989,8 +1094,9 @@
   }
 
   function createItemCard(index){
-    const card=document.createElement('div'); card.className='item-card';
-    card.innerHTML=`
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.innerHTML = `
       <div class="item-card-header">
         <div class="item-label">
           <div class="item-index-chip">${index}</div>
@@ -1006,7 +1112,7 @@
         <div class="field">
           <label>Item <span class="sub">Category</span></label>
           <select class="itemTypeSelect">
-            <option value="">Loading...</option>
+            <option value="">Select Item</option>
           </select>
         </div>
 
@@ -1080,28 +1186,28 @@
       </div>
     `;
 
-    const itemTypeSelect=card.querySelector('.itemTypeSelect');
-    const orderTypeSelect=card.querySelector('.orderTypeSelect');
-    const rateTypeSelect=card.querySelector('.rateTypeSelect');
-    const rateLabel=card.querySelector('.rateLabel');
-    const rateInput=card.querySelector('.rateValue');
-    const basicRateInput=card.querySelector('.basicRateValue');
-    const itemTotalLabel=card.querySelector('tfoot .itemTotalLabel'); 
-    const perHeader=card.querySelector('.perHeader');
-    const manualToggle=card.querySelector('.manualQtyToggle');
-    const manualInput=card.querySelector('.manualQtyValue');
-    const manualLabel=card.querySelector('.manualQtyLabel');
-    const manualNote=card.querySelector('.manualNote');
-    const table=card.querySelector('.itemTable');
+    const itemTypeSelect = card.querySelector('.itemTypeSelect');
+    const orderTypeSelect = card.querySelector('.orderTypeSelect');
+    const rateTypeSelect = card.querySelector('.rateTypeSelect');
+    const rateLabel = card.querySelector('.rateLabel');
+    const rateInput = card.querySelector('.rateValue');
+    const basicRateInput = card.querySelector('.basicRateValue');
+    const itemTotalLabel = card.querySelector('tfoot .itemTotalLabel');
+    const perHeader = card.querySelector('.perHeader');
+    const manualToggle = card.querySelector('.manualQtyToggle');
+    const manualInput = card.querySelector('.manualQtyValue');
+    const manualLabel = card.querySelector('.manualQtyLabel');
+    const manualNote = card.querySelector('.manualNote');
+    const table = card.querySelector('.itemTable');
 
     if(ITEM_NAMES.length > 0) {
-        itemTypeSelect.innerHTML = '<option value="">Select Item</option>';
-        ITEM_NAMES.forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = name;
-            opt.textContent = name;
-            itemTypeSelect.appendChild(opt);
-        });
+      itemTypeSelect.innerHTML = '<option value="">Select Item</option>';
+      ITEM_NAMES.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        itemTypeSelect.appendChild(opt);
+      });
     }
 
     function resetCardForNewItem(){
@@ -1113,8 +1219,8 @@
       const tbody = card.querySelector('tbody');
       tbody.innerHTML = '';
       addSizeRow(card);
-      card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
-      itemTotalLabel.textContent = '0.000'; 
+      card.querySelectorAll('tbody tr').forEach((r,i) => r.querySelector('td:first-child').textContent = i + 1);
+      itemTotalLabel.textContent = '0.000';
       basicRateInput.value = '';
       updateEffectiveTotalQty();
     }
@@ -1123,14 +1229,18 @@
       const item = itemTypeSelect.value;
       const orderType = orderTypeSelect.value;
       const rateType = rateTypeSelect.value;
-      const net = num(rateInput.value);
+      const enteredRate = num(rateInput.value);
+
+      // IMPORTANT:
+      // For display and WhatsApp, user-entered rate stays exactly in rateValue.
+      // basicRateValue is only for auto calc field, not main field.
 
       if(!(item === 'Sqr Bar' || item === 'Round Bar' || item === 'Flat' || item === 'Binding Wire' || item === 'Nails')){
         basicRateInput.value = '';
         return;
       }
 
-      if(rateType !== 'Net' || !net){
+      if(rateType !== 'Net' || !enteredRate){
         basicRateInput.value = '';
         return;
       }
@@ -1142,129 +1252,124 @@
 
       let basic;
       if(item === 'Binding Wire' || item === 'Nails'){
-        basic = (net / 1.18) - 255;
+        basic = (enteredRate / 1.18) - 255;
       } else {
         if(orderType === 'Bill'){
-          basic = (net / 1.18) - 255;
-        } else { // NC
-          basic = (net / 1.18) - 255 + 3000;
+          basic = (enteredRate / 1.18) - 255;
+        } else {
+          basic = (enteredRate / 1.18) - 255 + 3000;
         }
       }
       basicRateInput.value = Math.round(basic);
     }
 
     function updateLabels(){
-      const item=itemTypeSelect.value;
-      const rt=rateTypeSelect.value;
-      const rateWord=rt==='Basic'?'Basic Rate':rt==='Net'?'Netrate':'Rate';
-      
+      const item = itemTypeSelect.value;
+      const rt = rateTypeSelect.value;
+      const rateWord = rt === 'Basic' ? 'Basic Rate' : rt === 'Net' ? 'Netrate' : 'Rate';
+
       if (item === 'Sqr Bar') {
         rateLabel.textContent = 'Sqr Bar Rate';
-      } else if (item === 'Round Bar') { 
+      } else if (item === 'Round Bar') {
         rateLabel.textContent = 'Round Bar Rate';
       } else {
         rateLabel.textContent = item ? `${item} ${rateWord}` : rateWord;
       }
 
-      const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
-      const isMTOnly=(item==='Flat'||item==='Round Bar'||item==='Sqr Bar'); 
-      const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
-      const isBinding=(item==='Binding Wire');
-      const isNails=(item==='Nails');
+      const isPieces = (item === 'Bopp Tape' || item === 'Cutting Wheels');
+      const isMTOnly = (item === 'Flat' || item === 'Round Bar' || item === 'Sqr Bar');
+      const isDirectMT = (item === 'MS Pipe' || item === 'Pipe' || item === 'Angle' || item === 'Channel');
+      const isBinding = (item === 'Binding Wire');
+      const isNails = (item === 'Nails');
 
-      const headRow=card.querySelector('.itemTable thead tr');
-      const mtCols=card.querySelectorAll('.mtCol');
-      
+      const headRow = card.querySelector('.itemTable thead tr');
+      const mtCols = card.querySelectorAll('.mtCol');
+
       const perHeaderCell = headRow.children[2];
       const nosHeader = headRow.children[4];
 
-      perHeaderCell.style.display='';
-      nosHeader.style.display='';
+      perHeaderCell.style.display = '';
+      nosHeader.style.display = '';
 
-      // 1. Text Labels
       if (item === 'Sqr Bar') {
-          itemTotalLabel.textContent = `Total Sqr Bar Qty (MT)`;
-      } else if (item === 'Round Bar') { 
-          itemTotalLabel.textContent = `Total Round Bar Qty (MT)`;
+        itemTotalLabel.textContent = `Total Sqr Bar Qty (MT)`;
+      } else if (item === 'Round Bar') {
+        itemTotalLabel.textContent = `Total Round Bar Qty (MT)`;
       } else if(isPieces){
-        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (Pcs)`;
-        perHeader.textContent='Pcs';
-        headRow.children[4].textContent='Pcs/Box';
-        manualLabel.textContent='Manual Total Qty (Pcs)';
-        manualInput.step='1';
-        manualNote.textContent='Pieces do not add to Effective Total Qty (MT).';
-      }else if(isBinding){
-        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
-        perHeader.textContent='Kg';
-        headRow.children[4].textContent='Bundles';
-        manualLabel.textContent='Manual Total Qty (MT)';
-        manualInput.step='0.001';
-        manualNote.textContent='';
-      }else if(isDirectMT){
-        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
-        perHeader.textContent='Kg/6 mtr';
-        headRow.children[4].textContent='Nos';
-        manualLabel.textContent='Manual Total Qty (MT)';
-        manualInput.step='0.001';
-        manualNote.textContent='';
-      }else if(isNails){
-        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
-        perHeader.textContent='Kg';
-        headRow.children[4].textContent='Bags';
-        manualLabel.textContent='Manual Total Qty (MT)';
-        manualInput.step='0.001';
-        manualNote.textContent='';
-      }else{
-        itemTotalLabel.textContent=`Total ${item||'Item'} Qty (MT)`;
-        perHeader.textContent='Per (Kg / Qty)';
-        headRow.children[4].textContent='Nos';
-        manualLabel.textContent='Manual Total Qty (MT)';
-        manualInput.step='0.001';
-        manualNote.textContent='';
+        itemTotalLabel.textContent = `Total ${item || 'Item'} Qty (Pcs)`;
+        perHeader.textContent = 'Pcs';
+        headRow.children[4].textContent = 'Pcs/Box';
+        manualLabel.textContent = 'Manual Total Qty (Pcs)';
+        manualInput.step = '1';
+        manualNote.textContent = 'Pieces do not add to Effective Total Qty (MT).';
+      } else if(isBinding){
+        itemTotalLabel.textContent = `Total ${item || 'Item'} Qty (MT)`;
+        perHeader.textContent = 'Kg';
+        headRow.children[4].textContent = 'Bundles';
+        manualLabel.textContent = 'Manual Total Qty (MT)';
+        manualInput.step = '0.001';
+        manualNote.textContent = '';
+      } else if(isDirectMT){
+        itemTotalLabel.textContent = `Total ${item || 'Item'} Qty (MT)`;
+        perHeader.textContent = 'Per (Kg / Qty)';
+        headRow.children[4].textContent = 'Nos';
+        manualLabel.textContent = 'Manual Total Qty (MT)';
+        manualInput.step = '0.001';
+        manualNote.textContent = '';
+      } else if(isNails){
+        itemTotalLabel.textContent = `Total ${item || 'Item'} Qty (MT)`;
+        perHeader.textContent = 'Kg';
+        headRow.children[4].textContent = 'Bags';
+        manualLabel.textContent = 'Manual Total Qty (MT)';
+        manualInput.step = '0.001';
+        manualNote.textContent = '';
+      } else {
+        itemTotalLabel.textContent = `Total ${item || 'Item'} Qty (MT)`;
+        perHeader.textContent = 'Per (Kg / Qty)';
+        headRow.children[4].textContent = 'Nos';
+        manualLabel.textContent = 'Manual Total Qty (MT)';
+        manualInput.step = '0.001';
+        manualNote.textContent = '';
       }
 
-      // 2. MT Column Visibility Logic
-      // IMPORTANT CHANGE: We want MT shown for DirectMT (Pipes etc) to allow reverse calculation.
-      // We also want it shown for MTOnly items.
-      // We hide it for Pieces.
-      const showMT = !isPieces; 
-      mtCols.forEach(c=>c.style.display=showMT?'table-cell':'none');
+      const showMT = !isPieces;
+      mtCols.forEach(c => c.style.display = showMT ? 'table-cell' : 'none');
 
-      card.querySelectorAll('tbody tr').forEach(row=>{
+      card.querySelectorAll('tbody tr').forEach(row => {
         const perTd = row.children[2];
         const mtTd = row.children[3];
         const nosTd = row.children[4];
         const nosInput = row.querySelector('.nosInput');
         const weightInput = row.querySelector('.weightInput');
 
-        if(isMTOnly){ 
-          perHeaderCell.style.display='none';
-          if(perTd) perTd.style.display='none';
-          if(weightInput) weightInput.disabled=true;
+        if(isMTOnly){
+          perHeaderCell.style.display = 'none';
+          if(perTd) perTd.style.display = 'none';
+          if(weightInput) weightInput.disabled = true;
 
-          nosHeader.style.display='none';
-          if(nosTd) nosTd.style.display='none';
-          if(nosInput) nosInput.disabled=true;
+          nosHeader.style.display = 'none';
+          if(nosTd) nosTd.style.display = 'none';
+          if(nosInput) nosInput.disabled = true;
 
-          if(mtTd) mtTd.style.display='table-cell'; 
-        } else { 
-          if(perTd) perTd.style.display='table-cell';
-          if(weightInput) weightInput.disabled=false;
+          if(mtTd) mtTd.style.display = 'table-cell';
+        } else {
+          if(perTd) perTd.style.display = 'table-cell';
+          if(weightInput) weightInput.disabled = false;
 
-          if(nosTd) nosTd.style.display='table-cell';
-          if(nosInput) nosInput.disabled=false;
-          
-          if(mtTd) mtTd.style.display=showMT?'table-cell':'none';
+          if(nosTd) nosTd.style.display = 'table-cell';
+          if(nosInput) nosInput.disabled = false;
+
+          if(mtTd) mtTd.style.display = showMT ? 'table-cell' : 'none';
         }
       });
 
       if (isMTOnly) {
-          itemTotalLabel.colSpan = 3;
+        itemTotalLabel.colSpan = 3;
       } else {
-          itemTotalLabel.colSpan = 4;
+        itemTotalLabel.colSpan = 4;
       }
 
-      recalcItemTotals(card); 
+      recalcItemTotals(card);
       updateEffectiveTotalQty();
       updateBasicRate();
     }
@@ -1272,55 +1377,56 @@
 
     function applyManualMode(){
       if(manualToggle.checked){
-        manualInput.disabled=false;
+        manualInput.disabled = false;
         table.classList.add('table-disabled');
       }else{
         manualInput.disabled = true;
         manualInput.value = '';
         table.classList.remove('table-disabled');
       }
-      recalcItemTotals(card); updateEffectiveTotalQty();
+      recalcItemTotals(card);
+      updateEffectiveTotalQty();
     }
 
-    manualToggle.addEventListener('change',applyManualMode);
-    manualInput.addEventListener('input',()=>{recalcItemTotals(card);updateEffectiveTotalQty();});
+    manualToggle.addEventListener('change', applyManualMode);
+    manualInput.addEventListener('input', () => { recalcItemTotals(card); updateEffectiveTotalQty(); });
 
-    itemTypeSelect.addEventListener('change', ()=>{
+    itemTypeSelect.addEventListener('change', () => {
       resetCardForNewItem();
       updateLabels();
       updateBasicRate();
     });
 
-    rateTypeSelect.addEventListener('change',()=>{
+    rateTypeSelect.addEventListener('change', () => {
       updateLabels();
       updateBasicRate();
     });
 
-    orderTypeSelect.addEventListener('change',()=>{
+    orderTypeSelect.addEventListener('change', () => {
       updateBasicRate();
     });
 
-    rateInput.addEventListener('input',()=>{
+    rateInput.addEventListener('input', () => {
       updateBasicRate();
     });
 
     addSizeRow(card);
 
-    card.querySelector('.addSizeBtn').addEventListener('click',()=>{
+    card.querySelector('.addSizeBtn').addEventListener('click', () => {
       addSizeRow(card);
-      card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
+      card.querySelectorAll('tbody tr').forEach((r,i) => r.querySelector('td:first-child').textContent = i + 1);
     });
 
     card.querySelector('.resetSizeBtn').addEventListener('click', () => {
       const tbody = card.querySelector('tbody');
       tbody.innerHTML = '';
       addSizeRow(card);
-      card.querySelectorAll('tbody tr').forEach((r,i)=>r.querySelector('td:first-child').textContent=i+1);
+      card.querySelectorAll('tbody tr').forEach((r,i) => r.querySelector('td:first-child').textContent = i + 1);
       recalcItemTotals(card);
       updateEffectiveTotalQty();
     });
 
-    card.querySelector('.removeItemBtn').addEventListener('click',()=>{
+    card.querySelector('.removeItemBtn').addEventListener('click', () => {
       itemsContainer.removeChild(card);
       renumberCards();
       updateEffectiveTotalQty();
@@ -1331,135 +1437,135 @@
   }
 
   function updateLabelsForCard(card){
-    if(typeof card.__updateLabels==='function'){ card.__updateLabels(); }
+    if(typeof card.__updateLabels === 'function'){
+      card.__updateLabels();
+    }
   }
 
   function recalcItemTotals(card){
-    const item=card.querySelector('.itemTypeSelect').value;
-    const isPieces=(item==='Bopp Tape'||item==='Cutting Wheels');
-    const isMTOnly=(item==='Flat'||item==='Round Bar'||item==='Sqr Bar');
-    const isDirectMT=(item==='Pipe'||item==='Angle'||item==='Channel');
-    const isBinding=(item==='Binding Wire');
-    const isNails=(item==='Nails');
-    const manualOn=card.querySelector('.manualQtyToggle').checked;
-    const manualVal=num(card.querySelector('.manualQtyValue').value);
-    let total=0;
+    const item = card.querySelector('.itemTypeSelect').value;
+    const isPieces = (item === 'Bopp Tape' || item === 'Cutting Wheels');
+    const isMTOnly = (item === 'Flat' || item === 'Round Bar' || item === 'Sqr Bar');
+    const isDirectMT = (item === 'MS Pipe' || item === 'Pipe' || item === 'Angle' || item === 'Channel');
+    const isBinding = (item === 'Binding Wire');
+    const isNails = (item === 'Nails');
+    const manualOn = card.querySelector('.manualQtyToggle').checked;
+    const manualVal = num(card.querySelector('.manualQtyValue').value);
+    let total = 0;
 
     if(manualOn){
       total = manualVal || 0;
-    }else{
-      card.querySelectorAll('tbody tr').forEach(row=>{
-        const per=num(row.querySelector('.weightInput').value);
-        const nosInput=row.querySelector('.nosInput');
-        const mtInput=row.querySelector('.mtInput');
-        const totalInput=row.querySelector('.totalInput');
+    } else {
+      card.querySelectorAll('tbody tr').forEach(row => {
+        const per = num(row.querySelector('.weightInput').value);
+        const nosInput = row.querySelector('.nosInput');
+        const mtInput = row.querySelector('.mtInput');
+        const totalInput = row.querySelector('.totalInput');
 
-        if(isMTOnly && mtInput){ 
+        if(isMTOnly && mtInput){
           const mtVal = num(mtInput.value);
           totalInput.value = mtVal ? mtVal.toFixed(3) : '';
           total += mtVal || 0;
-          return; 
+          return;
         }
 
-        let mtVal=0, nosVal=num(nosInput.value);
+        let mtVal = 0, nosVal = num(nosInput.value);
 
-        // Logic for Reverse Calculation (Type MT -> Get Nos)
-        // Works for DirectMT (Pipes), Binding Wire, Nails
-        if((isDirectMT || isBinding || isNails || !isPieces) && mtInput){ 
+        if((isDirectMT || isBinding || isNails || !isPieces) && mtInput){
           const last = row.dataset.lastEdited || 'nos';
           const mtTypedStr = mtInput.value;
           const mtTyped = num(mtTypedStr);
 
-          // If user edited the MT column
           if(last === 'mt'){
             if(mtTypedStr !== ''){
-              
-              // --- CHANGED LOGIC START ---
-              // If weight (per) is 0 or empty, DIRECTLY COPY MT input to Total.
-              // This allows manual override for items without defined weights.
               if (per <= 0) {
-                 mtVal = mtTyped;
-                 nosInput.value = ''; // Clear Nos since it's irrelevant without weight
+                mtVal = mtTyped;
+                nosInput.value = '';
               } else {
-                 // Normal behavior: Calculate Nos from MT
-                 const rawNos = (mtTyped * 1000) / per;
-                 nosVal = Math.ceil(rawNos - 1e-9);
-                 nosInput.value = nosVal || '';
-                 mtVal = mtTyped;
+                const rawNos = (mtTyped * 1000) / per;
+                nosVal = Math.ceil(rawNos - 1e-9);
+                nosInput.value = nosVal || '';
+                mtVal = mtTyped;
               }
-              // --- CHANGED LOGIC END ---
-
             } else {
               mtVal = 0;
               totalInput.value = '';
             }
           } else {
-            // Standard: User edited Nos -> Calc MT
-            const raw = per * nosVal;
-            mtVal = raw/1000;
-            mtInput.value = mtVal ? mtVal.toFixed(3) : '';
+            if (per > 0 && nosVal > 0) {
+              const raw = per * nosVal;
+              mtVal = raw / 1000;
+              mtInput.value = mtVal ? mtVal.toFixed(3) : '';
+            } else if (num(mtInput.value) > 0) {
+              mtVal = num(mtInput.value);
+            } else {
+              mtVal = 0;
+            }
           }
 
           totalInput.value = mtVal ? mtVal.toFixed(3) : '';
           total += mtVal || 0;
-        } else { 
-          // Fallback or Pieces
+        } else {
           const raw = per * nosVal;
-          const display = isPieces ? raw : raw/1000;
+          const display = isPieces ? raw : raw / 1000;
           totalInput.value = display ? (isPieces ? raw : display.toFixed(3)) : '';
           total += display || 0;
         }
       });
     }
-    card.querySelector('tfoot .itemTotalLabel').textContent=total.toFixed(3);
+    card.querySelector('tfoot .itemTotalLabel').textContent = total.toFixed(3);
   }
 
   function computeAllItemsTotal(){
-    let sum=0;
-    document.querySelectorAll('.item-card').forEach(card=>{
-      const item=card.querySelector('.itemTypeSelect').value;
+    let sum = 0;
+    document.querySelectorAll('.item-card').forEach(card => {
+      const item = card.querySelector('.itemTypeSelect').value;
       if(!item) return;
-      if(item==='Bopp Tape'||item==='Cutting Wheels') return; 
-      sum += num(card.querySelector('tfoot .itemTotalLabel').textContent); 
+      if(item === 'Bopp Tape' || item === 'Cutting Wheels') return;
+      sum += num(card.querySelector('tfoot .itemTotalLabel').textContent);
     });
     return sum;
   }
-  function updateEffectiveTotalQty(){ totalQtyHeader.value = computeAllItemsTotal().toFixed(3); }
+
+  function updateEffectiveTotalQty(){
+    totalQtyHeader.value = computeAllItemsTotal().toFixed(3);
+  }
 
   function addItemCard(){
-    const existing=document.querySelectorAll('.item-card').length;
-    if(existing>=MAX_ITEMS){alert(`You can add maximum ${MAX_ITEMS} items.`);return null;}
-    const card=createItemCard(existing+1);
+    const existing = document.querySelectorAll('.item-card').length;
+    if(existing >= MAX_ITEMS){
+      alert(`You can add maximum ${MAX_ITEMS} items.`);
+      return null;
+    }
+    const card = createItemCard(existing + 1);
     itemsContainer.appendChild(card);
     return card;
   }
+
   function renumberCards(){
-    document.querySelectorAll('.item-card').forEach((c,i)=>{
-      c.querySelector('.item-index-chip').textContent=i+1;
-      c.querySelector('.item-label-title').textContent=`Item #${i+1}`;
+    document.querySelectorAll('.item-card').forEach((c,i) => {
+      c.querySelector('.item-index-chip').textContent = i + 1;
+      c.querySelector('.item-label-title').textContent = `Item #${i + 1}`;
     });
   }
 
-  addItemBtn.addEventListener('click',addItemCard);
+  addItemBtn.addEventListener('click', addItemCard);
 
-  // ---------- DATE FORMATTER FOR WHATSAPP (DD/MM/YYYY) ----------
   function formatDisplayDate(isoStr) {
     if (!isoStr) return '-';
-    const parts = isoStr.split('-'); 
+    const parts = isoStr.split('-');
     if (parts.length !== 3) return isoStr;
     const [yyyy, mm, dd] = parts;
     return `${dd}/${mm}/${yyyy}`;
   }
 
-  // ---------- WHATSAPP MESSAGE BUILDER ----------
   function buildWhatsAppMessage(includeDetails) {
-
     const bookingDateRaw = document.getElementById('bookingDate').value || '';
-    const bookingDate    = formatDisplayDate(bookingDateRaw);
-    const firmName       = document.getElementById('firmName').value || '-';
-    const vehicleNumber  = document.getElementById('vehicleNumber').value.trim();
-    const remarks        = document.getElementById('remarks').value || '';
-    const effQty         = totalQtyHeader.value || '0';
+    const bookingDate = formatDisplayDate(bookingDateRaw);
+    const firmName = document.getElementById('firmName').value || '-';
+    const vehicleNumber = document.getElementById('vehicleNumber').value.trim();
+    const remarks = document.getElementById('remarks').value || '';
+    const effQty = totalQtyHeader.value || '0';
 
     const SEP = "──────────────────";
 
@@ -1470,8 +1576,6 @@
     }
 
     let msg = "";
-
-    // HEADER
     msg += `*Sauda Booking*\n`;
     msg += `Date: ${bookingDate}\n`;
     msg += `*Firm: ${firmName}*\n`;
@@ -1481,46 +1585,41 @@
     const cards = [...document.querySelectorAll(".item-card")];
 
     cards.forEach((card, idx) => {
-
-      const item          = card.querySelector(".itemTypeSelect").value;
-      const orderType     = card.querySelector(".orderTypeSelect").value || "-";
+      const item = card.querySelector(".itemTypeSelect").value;
+      const orderType = card.querySelector(".orderTypeSelect").value || "-";
       const rateTypeRaw = card.querySelector(".rateTypeSelect").value || "";
-      const rate        = card.querySelector(".rateValue").value || "";
-      const basicRate   = card.querySelector(".basicRateValue").value || "";
-      const totalStr    = card.querySelector('tfoot .itemTotalLabel').textContent || "0"; 
-      const total       = num(totalStr);
+      const rate = card.querySelector(".rateValue").value || "";
+      const basicRate = card.querySelector(".basicRateValue").value || "";
+      const totalStr = card.querySelector('tfoot .itemTotalLabel').textContent || "0";
+      const total = num(totalStr);
 
-      if (!item || total == 0) return;
+      if (!item || total === 0) return;
 
       const isPcs = (item === "Bopp Tape" || item === "Cutting Wheels");
-      const unit  = isPcs ? "Pcs" : "MT";
+      const unit = isPcs ? "Pcs" : "MT";
 
       const rateType =
         rateTypeRaw === "Basic" ? "Basic Rate" :
-        rateTypeRaw === "Net"   ? "Netrate"    :
+        rateTypeRaw === "Net" ? "Netrate" :
         rateTypeRaw;
 
-      // ITEM HEADER BLOCK
       msg += `*Item #${idx+1}: ${item}*\n`;
       msg += `Order Type: *${orderType}*\n`;
       if (rateType) msg += `Rate Type: ${rateType}\n`;
-      if (rate)     msg += `Rate: ${rate}\n`;
+      if (rate) msg += `Rate: ${rate}\n`;
       if (basicRate) msg += `Basic Rate (Auto): ${basicRate}\n`;
-      
-      // SHOW TOTAL
-      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`; 
+      msg += `*Total ${item} Qty: ${formatQty(totalStr, isPcs)} ${unit}*\n`;
 
-      // ONLY SHOW DETAILS IF REQUESTED
       if (includeDetails) {
-        msg += `\n`; 
+        msg += `\n`;
         const rows = [...card.querySelectorAll("tbody tr")];
         const list = [];
 
         rows.forEach((row, i) => {
           const sizeRaw = row.querySelector(".sizeInput").value.trim();
-          const perVal  = row.querySelector(".weightInput").value.trim();
-          const nosVal  = row.querySelector(".nosInput").value.trim();
-          const qtyRaw  = row.querySelector(".totalInput").value.trim();
+          const perVal = row.querySelector(".weightInput").value.trim();
+          const nosVal = row.querySelector(".nosInput").value.trim();
+          const qtyRaw = row.querySelector(".totalInput").value.trim();
 
           if (!sizeRaw && !qtyRaw) return;
 
@@ -1536,24 +1635,23 @@
           } else {
             const nosLabel =
               item === "Binding Wire" ? "Bundles" :
-              item === "Nails"        ? "Bags" :
+              item === "Nails" ? "Bags" :
               "Nos";
-            
-            if (item === 'Sqr Bar' || item === 'Flat' || item === 'Round Bar') { 
-                if(!nosVal || nosVal == 0) {
-                     formula = `= ${formatQty(qtyRaw, false)} MT`;
-                } else {
-                     formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
-                }
-            } else if (item === 'Pipe' || item === 'Angle' || item === 'Channel') {
-                // CHANGED: IF weight (perVal) is missing, don't show the calculation, just the total.
-                if(!perVal || parseFloat(perVal) === 0) {
-                    formula = `= ${formatQty(qtyRaw, false)} MT`;
-                } else {
-                    formula = `${perVal}kg/6mtr x ${nosVal} Nos = ${formatQty(qtyRaw, false)} MT`;
-                }
-            } else {
+
+            if (item === 'Sqr Bar' || item === 'Flat' || item === 'Round Bar') {
+              if(!nosVal || nosVal == 0) {
+                formula = `= ${formatQty(qtyRaw, false)} MT`;
+              } else {
                 formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
+              }
+            } else if (item === 'MS Pipe' || item === 'Pipe' || item === 'Angle' || item === 'Channel') {
+              if(!perVal || parseFloat(perVal) === 0) {
+                formula = `= ${formatQty(qtyRaw, false)} MT`;
+              } else {
+                formula = `${perVal}kg x ${nosVal} Nos = ${formatQty(qtyRaw, false)} MT`;
+              }
+            } else {
+              formula = `${perVal}kg x ${nosVal} ${nosLabel} = ${formatQty(qtyRaw, false)} MT`;
             }
           }
 
@@ -1586,45 +1684,49 @@
     }
 
     msg += `\nThank you for your order!`;
-
     return msg;
   }
 
   function shareOnWhatsApp(includeDetails){
-    const dRaw=bookingDateEl.value.trim();
-    if(!dRaw){alert('Please select Booking Date.');return;}
-    const chosen=new Date(dRaw); chosen.setHours(0,0,0,0);
-    const today=new Date(); today.setHours(0,0,0,0);
-    if(chosen>today){
+    const dRaw = bookingDateEl.value.trim();
+    if(!dRaw){ alert('Please select Booking Date.'); return; }
+
+    const chosen = new Date(dRaw);
+    chosen.setHours(0,0,0,0);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    if(chosen > today){
       alert('Booking Date cannot be in the future.');
-      bookingDateEl.value=isoDateOnly(today);
-      bookingDateEl.focus(); return;
+      bookingDateEl.value = isoDateOnly(today);
+      bookingDateEl.focus();
+      return;
     }
 
-    const f=document.getElementById('firmName').value.trim();
-    if(!f){alert('Please enter Firm Name.');return;}
+    const f = document.getElementById('firmName').value.trim();
+    if(!f){ alert('Please enter Firm Name.'); return; }
 
-    let missingOrderType=false;
-    document.querySelectorAll('.item-card').forEach(card=>{
-      const item=card.querySelector('.itemTypeSelect').value.trim();
-      const orderType=card.querySelector('.orderTypeSelect').value.trim();
-      const total=num(card.querySelector('tfoot .itemTotalLabel').textContent||0); 
-      if(item && total>0 && !orderType){
-        missingOrderType=true;
+    let missingOrderType = false;
+    document.querySelectorAll('.item-card').forEach(card => {
+      const item = card.querySelector('.itemTypeSelect').value.trim();
+      const orderType = card.querySelector('.orderTypeSelect').value.trim();
+      const total = num(card.querySelector('tfoot .itemTotalLabel').textContent || 0);
+      if(item && total > 0 && !orderType){
+        missingOrderType = true;
       }
     });
+
     if(missingOrderType){
       alert('Please select Order Type (Bill / NC) for all items with quantity.');
       return;
     }
 
-    const message=buildWhatsAppMessage(includeDetails);
-    const encoded=encodeURIComponent(message);
-    const url=`https://wa.me/?text=${encoded}`;
+    const message = buildWhatsAppMessage(includeDetails);
+    const encoded = encodeURIComponent(message);
+    const url = `https://wa.me/?text=${encoded}`;
     window.open(url,'_blank');
   }
 
-  // --- AUTO-SAVE FEATURE ---
   const saveFields = ['firmName', 'vehicleNumber', 'remarks'];
 
   saveFields.forEach(id => {
@@ -1640,28 +1742,34 @@
 
   function resetForm(){
     if(!confirm('Clear all data and saved history?')) return;
+
     saveFields.forEach(id => localStorage.removeItem('sauda_' + id));
-    document.querySelectorAll('input,textarea,select').forEach(el=>{
-      if(el.tagName==='SELECT') el.selectedIndex=0; else el.value='';
+
+    document.querySelectorAll('input,textarea,select').forEach(el => {
+      if(el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
     });
-    itemsContainer.innerHTML='';
-    initializeApp(); 
-    const today=new Date();
-    bookingDateEl.max=isoDateOnly(today);
-    bookingDateEl.value=isoDateOnly(today);
-    totalQtyHeader.value='';
+
+    itemsContainer.innerHTML = '';
+    initializeApp();
+
+    const today = new Date();
+    bookingDateEl.max = isoDateOnly(today);
+    bookingDateEl.value = isoDateOnly(today);
+    totalQtyHeader.value = '';
   }
 
   window.shareOnWhatsApp = shareOnWhatsApp;
   window.resetForm = resetForm;
-  
+
   async function initializeApp() {
-    await fetchLiveItems(); 
-    addItemCard(); 
+    if (!document.querySelector('.item-card')) {
+      addItemCard();
+    }
+    await fetchLiveItems();
   }
 
-  initializeApp(); 
+  initializeApp();
 </script>
 </body>
 </html>
-
