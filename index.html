@@ -1624,10 +1624,14 @@
           if (!sizeRaw && !qtyRaw) return;
 
           let sizeShort = sizeRaw;
-          const prefix = item + " ";
-          if (sizeRaw.toLowerCase().startsWith(prefix.toLowerCase())) {
-            sizeShort = sizeRaw.slice(prefix.length);
-          }
+const prefix = item + " ";
+
+if (sizeRaw.toLowerCase().startsWith(prefix.toLowerCase())) {
+  sizeShort = sizeRaw.slice(prefix.length);
+}
+
+// remove last weight number from size label
+sizeShort = sizeShort.replace(/\s\d+(\.\d+)?$/, '').trim();
 
           let formula = "";
           if (isPcs) {
